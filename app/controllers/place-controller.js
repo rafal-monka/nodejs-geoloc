@@ -8,6 +8,22 @@ exports.getAll = (req, res, next) => {
         .catch (next) 
 }
 
+
+exports.getTest = (req, res, next) => {  
+    Place.find({})
+        .then(function (result) {
+            let places = []
+            result.forEach(element => {
+                places.push({
+                    lat: element.latitude, 
+                    lng: element.longitude                    
+                }) 
+            })
+            res.json(places)
+        })
+        .catch (next) 
+}
+
 exports.create = async (req, res, next) => {   
     let obj = {
         imei,

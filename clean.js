@@ -11,7 +11,7 @@ initDatabase()
 
 // Loop models path and loads every file as a model except index file
 const models = fs.readdirSync(modelsPath).filter((file) => {
-    return removeExtensionFromFile(file) !== 'index'
+    return ['index', 'apikey-model'].indexOf(removeExtensionFromFile(file)) === -1 
 })
 
 const deleteModelFromDB = (modelFileName) => {

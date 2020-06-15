@@ -8,10 +8,11 @@ exports.getAll = (req, res, next) => {
         .catch (next) 
 }
 
-exports.getOne = (req, res, next) => {  
-    Apikey.find({name: req.params.name})
+exports.getOne = (req, res, next) => {
+    const keyname = req.params.name;  
+    Apikey.findOne({name: keyname})
         .then(function (result) {
-            res.json({key: result[0].key})
+            res.json( {key: result.key} )
         })
         .catch (next) 
 }
