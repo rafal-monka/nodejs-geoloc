@@ -1,7 +1,9 @@
 const Route = require('../models/route-model')
 
 exports.getAll = (req, res, next) => {  
-    Route.find({})
+    Route.find({imei: req.params.imei}, 
+        null, 
+        {sort: {datefrom: -1}})
         .then(function (result) {
             res.json(result)
         })

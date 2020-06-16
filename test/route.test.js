@@ -10,13 +10,14 @@ let should = chai.should();
 chai.use(chaiHttp); //https://www.chaijs.com/api/bdd/
 
 const _NAME = 'ROUTE-NAME-TEST'
+const _IMEI = 'IMEI-TEST'
 
 describe('Routes', () => {
 
     describe('POST /api/route', () => {
         it('it should POST route', (done) => {
             let body = {
-                imei: 'IMEI-TEST-1',
+                imei: _IMEI,
                 name: _NAME,
                 datefrom: '2020-06-10T08:08:43.000+00:00',
                 dateto: '2020-06-10T08:08:43.000+00:00',
@@ -39,7 +40,7 @@ describe('Routes', () => {
     describe('GET /api/route', () => {
         it('it should GET all the routes', (done) => {
             chai.request(server) 
-                .get('/api/route')
+                .get('/api/route/'+_IMEI)
                 .end((err, res) => {
                     res.should.have.status(200)
                     res.body.should.be.a('array')//.with.lengthOf(1)
