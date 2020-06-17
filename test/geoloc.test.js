@@ -55,13 +55,13 @@ describe('Geolocs', () => {
     });
 
 
-    describe('GET /api/geoloc/between/:from/:to/:imei', () => {
+    describe('GET /api/geoloc/paneldata/:from/:to/:imei', () => {
         it('it should GET geolocs from time period', (done) => {
             chai.request(server) 
-                .get('/api/geoloc/between/2020-06-14T11:09:12.000+00:00/2020-06-14T23:30:00.000+00:00/357876082170434')
+                .get('/api/geoloc/paneldata/357876082170434/2020-06-14T11:09:12.000+00:00/2020-06-14T23:30:00.000+00:00')
                 .end((err, res) => {
                     res.should.have.status(200)
-                    res.body.should.be.a('array')
+                    res.body.should.be.a('object')
                     done();
                 });
         });

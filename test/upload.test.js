@@ -69,9 +69,9 @@ describe('Upload', () => {
 
     after( async () => {  
         //await Geoloc.deleteMany({})
-        await Route.deleteMany({})
-        await Place.deleteMany({})
-        await Device.deleteMany({})
+        //await Route.deleteMany({})
+        //await Place.deleteMany({})
+        //await Device.deleteMany({})
     })
 
 });
