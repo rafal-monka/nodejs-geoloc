@@ -19,9 +19,20 @@ if(process.env.NODE_ENV !== 'test') {
   app.use(morgan('combined')); //'combined' outputs the Apache style LOGs
 }
 
-//include public folder with SPA app
 app.use(cors())
-app.use(express.static(path.join(__dirname, 'public')));                                   
+
+//make default URL for SPA
+app.use(express.static(path.join(__dirname, 'public'))); //include public folder with SPA app   
+//#https://blog.fullstacktraining.com/404-after-refreshing-the-browser-for-angular-vue-js-app/
+const buildLocation = 'public';
+app.use((req, res, next) => {
+  if (!req.originalUrl.includes(buildLocation) && !req.originalUrl.includes('/api/')) {
+    res.sendFile(`${__dirname}/${buildLocation}/index.html`);
+  } else {
+    next();
+  }
+});
+
 app.use(bodyParser.json());                                     
 app.use(bodyParser.urlencoded({extended: true}));               
 app.use(bodyParser.text());                                    
