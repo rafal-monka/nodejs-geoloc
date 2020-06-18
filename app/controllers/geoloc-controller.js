@@ -1,7 +1,7 @@
 const moment = require('moment')
 const Geoloc = require('../models/geoloc-model')
 const Device = require('../models/device-model')
-const panelDataConf = require('./paneldata-conf')
+const panelDataConf = require('../../config/paneldata')
 const DETAILED_GEOLOCS_LIMIT = 2000
 
 //###TO-DELETE
@@ -59,11 +59,14 @@ getDetailedGeolocs = (imei, startTime, endTime) => {
         .then(function (result) {
             let geolocs = []
             result.forEach(element => {
-                geolocs.push([
-                    element.latitude, 
-                    element.longitude, 
-                    element.speed*3.6  //m/s -> km/h ###Math.round(Math.random()*100)
-                ]) 
+                geolocs.push({
+                    lat: element.latitude, 
+                    lng: element.longitude, 
+                    spd: element.speed*3.6,  //m/s -> km/h ###Math.round(Math.random()*100)
+                    btslat: element.bts_lat,
+                    btslng: element.bts_lng,
+                    btsi: element.bts_info
+                }) 
             })
             return geolocs
         })
@@ -82,16 +85,16 @@ getAggregatedGeolocs = (imei, startTime, endTime, minDeviceTime, sectionWidth) =
             console.log('getAggregatedGeolocs', 'return results', results.length)
             let geolocs = []
             results.forEach(element => {
-                geolocs.push([
-                    element.avg_lat, 
-                    element.avg_lng, 
-                    element.avg_speed*3.6,  //m/s -> km/h 
-                    element.min_lat,
-                    element.max_lat,
-                    element.min_lng,
-                    element.max_lng,
-                    element.count
-                ]) 
+                geolocs.push({
+                    lat: element.avg_lat, 
+                    lng: element.avg_lng, 
+                    spd: element.avg_speed*3.6,  //m/s -> km/h 
+                    minlat: element.min_lat,
+                    maxlat: element.max_lat,
+                    minlng: element.min_lng,
+                    maxlng: element.max_lng,
+                    cnt: element.count
+                }) 
             })
             return geolocs
         })
@@ -108,26 +111,25 @@ exports.panelData = async (req, res, next) => {
             )
             .then(async metadata => {
                 try {
+                    let geolocs = {}
+                    let type 
                     if (metadata.length === 1) {
-                        let geolocs = {}
-                        let type 
                         if (metadata[0].count <= DETAILED_GEOLOCS_LIMIT) {                           
                             type = 'detailed'
                             geolocs = await getDetailedGeolocs(imei, startTime, endTime)
                         } else {
-                            //@@@
                             type = 'aggregated'
                             let sectionWidth = Math.round(metadata[0].devicetime_span / DETAILED_GEOLOCS_LIMIT);
                             geolocs = await getAggregatedGeolocs(imei, startTime, endTime, metadata[0].min_devicetime, sectionWidth)
                         }                              
-                        res.json({
-                            type: type,
-                            geolocs: geolocs,
-                            metadata: metadata
-                        })          
-                    }  else {
-                        res.status(404).json("Something went wrong with getting panel data.")
+                    } else {
+                        type = "nodata"
                     } 
+                    res.json({
+                        type: type,
+                        geolocs: geolocs,
+                        metadata: metadata
+                    })  
                 } catch (err) {
                     next(err)
                 }         
