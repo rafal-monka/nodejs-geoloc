@@ -36,10 +36,8 @@ exports.create = (req, res, next) => {
 
     obj.clientdata = 'on' /* on-line */
     let geoloc = new Geoloc(obj)
-    console.log('saving geoloc...')
     geoloc.save()
         .then(function (result ){
-            console.log('geoloc saved', result)
             for (let client of wss.getClients()) {
                 if (client.clientInfo.imei === result.imei) {
                     client.send(JSON.stringify(result));
