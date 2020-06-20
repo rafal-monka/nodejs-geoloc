@@ -54,8 +54,6 @@ app.set('view engine', 'handlebars')
 
 
 //start server
-//const server = http.createServer();
-
 const clients = [];
 
 const port = process.env.PORT || 3033
