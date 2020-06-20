@@ -2,6 +2,8 @@ const moment = require('moment')
 const Geoloc = require('../models/geoloc-model')
 const Device = require('../models/device-model')
 const panelDataConf = require('../../config/paneldata')
+const wss = require('../../wss')
+
 const DETAILED_GEOLOCS_LIMIT = 2000
 
 //###TO-DELETE
@@ -33,10 +35,14 @@ exports.create = (req, res, next) => {
     } = req.body
 
     obj.clientdata = 'on' /* on-line */
-    console.log('create.geoloc.obj', obj)
     let geoloc = new Geoloc(obj)
     geoloc.save()
         .then(function (result ){
+            for (let client of wss.getClients()) {
+                if (client.clientInfo.imei === result.imei) {
+                    client.send(JSON.stringify(result));
+                }
+            };
             res.status(200).json(result)
         })
         .catch (next)  
