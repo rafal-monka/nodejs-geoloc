@@ -4,7 +4,7 @@ const Device = require('../models/device-model')
 const panelDataConf = require('../../config/paneldata')
 const wss = require('../../wss')
 
-const DETAILED_GEOLOCS_LIMIT = 2000 //number of max records for detailed geolocs, otherwise query for aggregated
+const DETAILED_GEOLOCS_LIMIT = 2000
 
 //###TO-DELETE
 exports.find = (req, res, next) => { 
@@ -48,11 +48,69 @@ exports.create = (req, res, next) => {
         .catch (next)  
 }
 
+getDetailedGeolocs = (imei, startTime, endTime) => {
+console.log('findDetailedGeolocs (imei, startTime, endTime)', imei, startTime, endTime)
+    var startDate = moment(startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSZ"); 
+    var endDate   = moment(endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSZ"); 
+// console.log('startDate, endDate', startDate, endDate)
+    return Geoloc
+        .find({ 
+            imei: imei,        
+            devicetime: {
+                $gte:  startDate,
+                $lte:  endDate
+            }
+        }, null, {sort: {devicetime: 1}})
+        .limit(DETAILED_GEOLOCS_LIMIT)
+        .then(function (result) {
+            let geolocs = []
+            result.forEach(element => {
+                geolocs.push({
+                    lat: element.latitude, 
+                    lng: element.longitude, 
+                    spd: element.speed*3.6,  //m/s -> km/h ###Math.round(Math.random()*100)
+                    btslat: element.bts_lat,
+                    btslng: element.bts_lng,
+                    btsi: element.bts_info
+                }) 
+            })
+            return geolocs
+        })
+}
+
+getAggregatedGeolocs = (imei, startTime, endTime, minDeviceTime, sectionWidth) => {
+// console.log('getAggregatedGeolocs[1]', imei, startTime, endTime, minDeviceTime, sectionWidth)
+    var startTime = moment(startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSZ"); 
+    var endTime = moment(endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSZ"); 
+// console.log('getAggregatedGeolocs[2]', imei, startTime, endTime)
+    return Geoloc
+        .aggregate(
+            panelDataConf.aggregated(imei, startTime, endTime, minDeviceTime, sectionWidth)    
+        )
+        .then((results) => {
+            console.log('getAggregatedGeolocs', 'return results', results.length)
+            let geolocs = []
+            results.forEach(element => {
+                geolocs.push({
+                    lat: element.avg_lat, 
+                    lng: element.avg_lng, 
+                    spd: element.avg_speed*3.6,  //m/s -> km/h 
+                    minlat: element.min_lat,
+                    maxlat: element.max_lat,
+                    minlng: element.min_lng,
+                    maxlng: element.max_lng,
+                    cnt: element.count
+                }) 
+            })
+            return geolocs
+        })
+}
+
 exports.panelData = async (req, res, next) => { 
     try {    
         var imei = req.params.imei 
-        var startTime = moment(req.params.startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
-        var endTime   = moment(req.params.endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
+        var startTime = moment(req.params.startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSZ"); 
+        var endTime   = moment(req.params.endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSZ"); 
         Geoloc
             .aggregate(
                 panelDataConf.metadata(imei, startTime, endTime)    
@@ -87,60 +145,4 @@ exports.panelData = async (req, res, next) => {
     }
 }
 
-getDetailedGeolocs = (imei, startTime, endTime) => {
-// console.log('findDetailedGeolocs (imei, startTime, endTime)', imei, startTime, endTime)
-    var startDate = moment(startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
-    var endDate   = moment(endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
-// console.log('startDate, endDate', startDate, endDate)
-    return Geoloc
-        .find({ 
-            imei: imei,        
-            devicetime: {
-                $gte:  startDate,
-                $lte:  endDate
-            }
-        }, null, {sort: {devicetime: 1}})
-        .limit(DETAILED_GEOLOCS_LIMIT)
-        .then(function (result) {
-            let geolocs = []
-            result.forEach(element => {
-                geolocs.push({
-                    lat: element.latitude, 
-                    lng: element.longitude, 
-                    spd: element.speed*3.6,  //m/s -> km/h ###Math.round(Math.random()*100)
-                    btslat: element.bts_lat,
-                    btslng: element.bts_lng,
-                    btsi: element.bts_info
-                }) 
-            })
-            return geolocs
-        })
-}
-    
-getAggregatedGeolocs = (imei, startTime, endTime, minDeviceTime, sectionWidth) => {
-// console.log('getAggregatedGeolocs[1]', imei, startTime, endTime, minDeviceTime, sectionWidth)
-    var startTime = moment(startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
-    var endTime = moment(endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
-// console.log('getAggregatedGeolocs[2]', imei, startTime, endTime)
-    return Geoloc
-        .aggregate(
-            panelDataConf.aggregated(imei, startTime, endTime, minDeviceTime, sectionWidth)    
-        )
-        .then((results) => {
-            console.log('getAggregatedGeolocs', 'return results', results.length)
-            let geolocs = []
-            results.forEach(element => {
-                geolocs.push({
-                    lat: element.avg_lat, 
-                    lng: element.avg_lng, 
-                    spd: element.avg_speed*3.6,  //m/s -> km/h 
-                    minlat: element.min_lat,
-                    maxlat: element.max_lat,
-                    minlng: element.min_lng,
-                    maxlng: element.max_lng,
-                    cnt: element.count
-                }) 
-            })
-            return geolocs
-        })
-}
+
