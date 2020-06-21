@@ -4,7 +4,7 @@ const Device = require('../models/device-model')
 const panelDataConf = require('../../config/paneldata')
 const wss = require('../../wss')
 
-const DETAILED_GEOLOCS_LIMIT = 2000
+const DETAILED_GEOLOCS_LIMIT = 5000
 
 //###TO-DELETE
 exports.find = (req, res, next) => { 

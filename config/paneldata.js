@@ -68,17 +68,14 @@ exports.aggregated = (imei, startDate, endDate, minDeviceTime, sectionWidth) => 
 // console.log('exports.aggregated', startDate, endDate, minDeviceTime, sectionWidth)        
     if (sectionWidth === 0) return null    
     return [
+    {'$match': 
         {
-           '$sort': {
-              'devicetime': 1
-           }
-        }, {'$match': {
           'devicetime': {
-          '$gte': new Date(startDate), 
-          '$lte': new Date(endDate)
-        }, 
-        'imei': imei
-      }
+              '$gte': new Date(startDate), 
+              '$lte': new Date(endDate)
+          }, 
+          'imei': imei
+        }
     }, {
       '$addFields': {
         'section': {
