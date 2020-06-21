@@ -1,7 +1,7 @@
 const Device = require('../models/device-model')
 
 module.exports = async (req, res, next) => {
-    console.log('deviceMiddleware')
+    console.log('---deviceMiddleware---')
     if (!req.body.imei) {
         res.status(404).send("Missing IMEI number")
         return
@@ -12,17 +12,19 @@ module.exports = async (req, res, next) => {
     })
     Device
         .find( {imei: device.imei}, async function (err, docs) {
-            console.log('###devices (docs.length)', docs.length)
             if (docs.length===0) {
+                console.log('---deviceMiddleware---/adding device')
                 await device.save()
+                console.log('---deviceMiddleware---/device added')
             } else {                
-                console.log('###device already exists', docs[0].description, device.description)
                 if (device.description) { 
                     if (docs[0].description === undefined || (docs[0].description && docs[0].description.toLowerCase() !== device.description.toLowerCase())) {
+                        console.log('---deviceMiddleware---/modyfing device description')
                         await Device.findByIdAndUpdate(docs[0]._id, {
                             description: device.description,
                             updated_at: new Date()
                         })
+                        console.log('---deviceMiddleware---/description modified')
                     }
                 }                
             }

@@ -38,11 +38,11 @@ exports.create = (req, res, next) => {
     let geoloc = new Geoloc(obj)
     geoloc.save()
         .then(function (result ){
-            for (let client of wss.getClients()) {
-                if (client.clientInfo.imei === result.imei) {
+            wss.getClients()
+                .filter(client => client.clientInfo.imei === result.imei )
+                .forEach(client => {
                     client.send(JSON.stringify(result));
-                }
-            };
+                })
             res.status(200).json(result)
         })
         .catch (next)  
@@ -144,5 +144,4 @@ exports.panelData = async (req, res, next) => {
         next(err)
     }
 }
-
 

@@ -3,15 +3,11 @@ const WebSocket = require('ws');
 
 var wss;
 
-exports.getClients = () => {
-    return wss.clients
+getClients = () => {
+    return [...wss.clients]
 }
 
-//#not used
-// heartbeat = () => {
-//     this.isAlive = true
-//     console.log('[server] on-pong', thos.clientID);
-// }
+exports.getClients = getClients
 
 exports.init = (server) => {
     wss = new WebSocket.Server(/*{ noServer: true }*/{server : server});
@@ -34,17 +30,11 @@ exports.init = (server) => {
             
         ws.on('message', function message(msg) {
             console.log(`wss.on-message Received message ${msg} from client ${clientID}`)
-            let i = 0
-            for (let client of wss.clients) {
-                i++
-                console.log(i)
-                if (clientID === client.clientInfo.clientID) {
-                    let txt = '[server] RE:'+msg.toUpperCase()
-                    client.send(txt);
-                } else {
-                    //do nothing
-                }
-            }
+            getClients()
+                .filter(client => client.clientInfo.clientID === clientID )
+                .forEach(client => {
+                    client.send( '[SERVER] RE:'+msg.toUpperCase() );
+                })
         });
 
     });   
@@ -62,3 +52,23 @@ exports.init = (server) => {
 //     client.ws.send(new Date()+" - message...");
 //     });
 // }, 5000);
+
+//#not used
+// heartbeat = () => {
+//     this.isAlive = true
+//     console.log('[server] on-pong', thos.clientID);
+// }
+
+
+/*let i = 0
+for (let client of wss.clients) {
+    i++
+    console.log(i)
+    if (clientID === client.clientInfo.clientID) {
+        let txt = '[SERVER] RE:'+msg.toUpperCase()
+        client.send(txt);
+    } else {
+        //do nothing
+    }
+}
+*/
