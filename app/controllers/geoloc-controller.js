@@ -5,7 +5,6 @@ const panelDataConf = require('../../config/paneldata')
 const wss = require('../../wss')
 
 const DETAILED_GEOLOCS_LIMIT = 2000 //number of max records for detailed geolocs, otherwise query for aggregated
-const DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.SSSZ"
 
 //###TO-DELETE
 exports.find = (req, res, next) => { 
@@ -52,8 +51,8 @@ exports.create = (req, res, next) => {
 exports.panelData = async (req, res, next) => { 
     try {    
         var imei = req.params.imei 
-        var startTime = moment(req.params.startTime).utcOffset('+0000').format(DATE_FORMAT); 
-        var endTime   = moment(req.params.endTime).utcOffset('+0000').format(DATE_FORMAT); 
+        var startTime = moment(req.params.startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
+        var endTime   = moment(req.params.endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
         Geoloc
             .aggregate(
                 panelDataConf.metadata(imei, startTime, endTime)    
@@ -90,8 +89,8 @@ exports.panelData = async (req, res, next) => {
 
 getDetailedGeolocs = (imei, startTime, endTime) => {
 // console.log('findDetailedGeolocs (imei, startTime, endTime)', imei, startTime, endTime)
-    var startDate = moment(startTime).utcOffset('+0000').format(DATE_FORMAT); 
-    var endDate   = moment(endTime).utcOffset('+0000').format(DATE_FORMAT); 
+    var startDate = moment(startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
+    var endDate   = moment(endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
 // console.log('startDate, endDate', startDate, endDate)
     return Geoloc
         .find({ 
@@ -120,8 +119,8 @@ getDetailedGeolocs = (imei, startTime, endTime) => {
     
 getAggregatedGeolocs = (imei, startTime, endTime, minDeviceTime, sectionWidth) => {
 // console.log('getAggregatedGeolocs[1]', imei, startTime, endTime, minDeviceTime, sectionWidth)
-    var startTime = moment(startTime).utcOffset('+0000').format(DATE_FORMAT); 
-    var endTime = moment(endTime).utcOffset('+0000').format(DATE_FORMAT); 
+    var startTime = moment(startTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
+    var endTime = moment(endTime).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss")+".SSSZ"; 
 // console.log('getAggregatedGeolocs[2]', imei, startTime, endTime)
     return Geoloc
         .aggregate(
