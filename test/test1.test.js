@@ -33,7 +33,7 @@ describe('Test', () => {
                 .get('/api/test1')
                 .end((err, res) => {
                     res.should.have.status(200)
-                    res.body.should.eql("test-controller-1")
+                    res.body.should.be.a('array')//eql("test-controller-1")
                     done();
                 });
         });
