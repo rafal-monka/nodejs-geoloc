@@ -9,6 +9,9 @@ node_modules/
 #NYC
 .nyc_output
 
+#old code
+OLD/
+
 # dotenv environment variables file
 .env
 

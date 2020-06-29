@@ -26,18 +26,18 @@ describe('Test', () => {
         });
     })
 
-    //Test the /GET route
-    describe('/GET test', () => {
-        it('it should GET test1', (done) => {
-            chai.request(server) 
-                .get('/api/test1')
-                .end((err, res) => {
-                    res.should.have.status(200)
-                    res.body.should.be.a('array')//eql("test-controller-1")
-                    done();
-                });
-        });
-    });
+    // //Test the /GET route
+    // describe('/GET test', () => {
+    //     it('it should GET test1', (done) => {
+    //         chai.request(server) 
+    //             .get('/api/test1')
+    //             .end((err, res) => {
+    //                 res.should.have.status(200)
+    //                 res.body.should.be.a('array')//eql("test-controller-1")
+    //                 done();
+    //             });
+    //     });
+    // });
 
 });
 

@@ -6,6 +6,7 @@ const routesPath = `${__dirname}/`
 const { removeExtensionFromFile } = require('../middleware/utils')
 const deviceMiddleware = require('../middleware/device-middleware.js')
 
+
 //myMiddleware
 const myMiddlewareLog = async (req, res, next) => {
     console.log('myMiddlewareLog', req.originalUrl)
@@ -22,15 +23,13 @@ fs.readdirSync(routesPath).filter((file) => {
     const routeFile = removeExtensionFromFile(file)
     // Prevents loading of this file and auth file
     return routeFile !== 'index' && routeFile !== 'auth'
-      ? router.use(`/api/${routeFile}`, require(`./${routeFile}`))
+      ? router.use(`/${routeFile}`, require(`./${routeFile}`)) 
       : ''
 })
 
 router.get("/api/home", (req, res) => {
     res.json({ message: "Welcome to Geoloc API application." });
 });
-
-
 
 
 // custom 404 page
