@@ -3,7 +3,7 @@ const Place = require('../models/place-model')
 exports.getAll = (req, res, next) => {  
     Place.find({})
         .then(function (result) {
-            res.json(result)
+            res.json({places: result})
         })
         .catch (next) 
 }
